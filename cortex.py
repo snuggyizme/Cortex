@@ -1,9 +1,10 @@
 import sys
+from collections import defaultdict
 
 p: int = 0
 cp: int = 0
 
-tape: list[int] = [0] * 256
+tape: defaultdict[int, int] = defaultdict(int)
 
 tapeNames: dict[str, int] = {}
 
@@ -51,7 +52,7 @@ def execute(brainFuck: str):
                 print(tape[p])
                 i += 1
             case "D":                      # dump tape
-                print(tape)
+                print(dict(tape))
                 i += 1
 
             # Looping
@@ -194,6 +195,13 @@ def compile():
                 # E.G.
                 # end == ]
             
+            case "cpy":
+                if len(args) != 2:
+                    raise ValueError(f"cpy requires 2 arguments, got {len(args)} at line: {line}")
+                programBf.append(cpy(args[0], args[1]))
+                # E.G.
+                # no example fuck you its 3:27
+            
             case _:
                 raise ValueError(f"Unknown instruction: {instruction} at line: {line}")
             
@@ -253,6 +261,29 @@ def fly(cell: int | str):
     
     return command
 
+def cpy(dst: int | str, src: int | str):
+    """
+    Returns a command to copy the value of the source cell to the destination cell.
+    Both dst and src can be <int> or <str>, if <str> is used, it must be in tapeNames and the index of the name in tapeNames will be used as the cell number.
+    """
+    global cp
+
+    if isinstance(src, str):
+        if src in tapeNames:
+            src = int(tapeNames[src])
+        else:
+            raise ValueError(f"Unknown tape name: {src}")
+    
+    if isinstance(dst, str):
+        if dst in tapeNames:
+            dst = int(tapeNames[dst])
+        else:
+            raise ValueError(f"Unknown tape name: {dst}")
+
+    command = fly(src) + "[-]" + fly(dst) + "[-]" + fly(src) + "[-]" + fly(dst) + "[-]" + fly(src) + "[-]" + fly(dst) + inc(1)
+    
+    return command
+
 # Instructions reference sheet:
 # lft - move pointer left by (arg1: int) cells
 # rgt - move pointer right by (arg1: int) cells
@@ -268,6 +299,7 @@ def fly(cell: int | str):
 # set - set current cell to the value (arg1: int)
 # lop - start a loop (while current cell != 0)
 # end - end a loop
+# cpy - copy value from source cell (arg1: int | str) to destination cell (arg2: int | str)
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:
