@@ -1,6 +1,8 @@
 p: int = 0
 cp: int = 0
 
+tape: list[int] = [0] * 256
+
 tapeNames: dict[str, int] = {} # Integers at first, but replaced with names by let.
 
 programBf: list[str | tuple] = []
@@ -13,8 +15,7 @@ def execute(brainFuck: str):
     Executes the given BrainFuck code and prints any output produced by the code.
     """
     global p
-
-    tape: list[int] = [0] * 30000
+    global tape
 
     i: int = 0
 
@@ -72,7 +73,27 @@ def execute(brainFuck: str):
                 else:
                     i += 1
 
-def parse(cortex: list[list]):
+def runner():
+    """
+    Runs the entire process of parsing, compiling, and executing the code.
+    """
+    global programBf
+    global programCortex
+    global rawCortex
+    global tape
+
+    parse()
+    compile()
+
+    for i in programBf:
+        if isinstance(i, tuple) and i[0] == "PRN":
+            print(tape[cp])
+        elif isinstance(i, tuple) and i[0] == "DMP":
+            print(tape)
+        else:
+            execute(str(i))
+
+def parse():
     """
     Parse the given code in cortex and convert it into BrainFuck code.
     The returned code is a list (lines of code) of lists (i0: instruction, i1+: args)
