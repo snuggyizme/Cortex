@@ -202,10 +202,26 @@ def compile():
                 # E.G.
                 # no example fuck you its 3:27
             
+            case "add":
+                if len(args) != 2:
+                    raise ValueError(f"add requires 2 arguments, got {len(args)} at line: {line}")
+                programBf.append(add(args[0], args[1]))
+                # E.G.
+                # add 3 4 (starting at 3) == [+>-<]
+
             case _:
                 raise ValueError(f"Unknown instruction: {instruction} at line: {line}")
             
+def _resolve(cell: int | str):
+    """
+    Turn a cell field (index or name) into a cell index.
+    """
 
+    if isinstance(cell, str):
+        if cell in tapeNames:
+            return int(tapeNames[cell])
+        raise ValueError(f"Unknown tape name: {cell}")
+    return int(cell)
         
 # -------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -261,6 +277,30 @@ def fly(cell: int | str):
     
     return command
 
+def add(dst: int | str, src: int | str):
+    """
+    Returns a command to add the value of the source cell to the destination cell.
+    Both dst and src can be <int> or <str>, if <str> is used, it must be in tapeNames and the index of the name in tapeNames will be used as the cell number.
+    """
+    global cp
+
+    dst = _resolve(dst)
+    src = _resolve(src)
+        
+    # command = f"[{fly(dst)}+{fly(temp)}+][-{fly(src)}+{fly(temp)}]" # Still sad this somehow doesn't work, piece of art.
+
+    command = ""
+
+    command += cpy(705, src)
+    command += fly(705)
+    command += "[-"
+    command += fly(dst) + "+"
+    command += fly(705)
+    command += "]"
+    command += fly(cp)
+
+    return command
+
 def cpy(dst: int | str, src: int | str):
     """
     Returns a command to copy the value of the source cell to the destination cell.
@@ -268,19 +308,33 @@ def cpy(dst: int | str, src: int | str):
     """
     global cp
 
-    if isinstance(src, str):
-        if src in tapeNames:
-            src = int(tapeNames[src])
-        else:
-            raise ValueError(f"Unknown tape name: {src}")
-    
-    if isinstance(dst, str):
-        if dst in tapeNames:
-            dst = int(tapeNames[dst])
-        else:
-            raise ValueError(f"Unknown tape name: {dst}")
+    dst = _resolve(dst)
+    src = _resolve(src)
 
-    command = fly(src) + "[-]" + fly(dst) + "[-]" + fly(src) + "[-]" + fly(dst) + "[-]" + fly(src) + "[-]" + fly(dst) + inc(1)
+    # command = f"{fly(dst)}[-]{add(dst, src)}"
+
+    command = ""
+
+                                       # GET FROM SOURCE
+
+    command += fly(src)                # Go to source, it is our loop counter
+    command += "[-"                    # Loop and start to clear source
+    command += fly(dst) + "+"          # Transferring source to destination
+    command += fly(704) + "+"         # & temp
+    command += fly(src)                # Go back to source to check if we are done with the loop
+    command += "]"                     # The done with the loop in question
+
+                                       # RESTORE
+
+    command += fly(704)               # Go to temp, it is our loop counter
+    command += "[-"                    # Loop and start to clear temp
+    command += fly(src) + "+"          # Transferring temp back to source
+    command += fly(704)               # Go back to temp to check if we are done with the loop
+    command += "]"                     # The done with the loop in question
+
+                                       # I FEEL LIKE A TYPEWRITER
+    
+    command += fly(cp)                 # RAAAAAGGHHHHHHH
     
     return command
 
@@ -299,7 +353,8 @@ def cpy(dst: int | str, src: int | str):
 # set - set current cell to the value (arg1: int)
 # lop - start a loop (while current cell != 0)
 # end - end a loop
-# cpy - copy value from source cell (arg1: int | str) to destination cell (arg2: int | str)
+# cpy - copy value to destination cell (arg2: int | str) from source cell (arg1: int | str)
+# add - combine (arg1: int | str) and (arg2: int | str) into (arg1: int | str)
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:
