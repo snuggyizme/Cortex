@@ -1,8 +1,11 @@
 p: int = 0
+cp: int = 0
 
-tapeNames: list[str] = []
+tapeNames: list = [0] * 30000 # Integers at first, but replaced with names by let.
 
-program: list[str] = []
+programBf: list[str | tuple] = []
+programCortex: list[list] = []
+rawCortex: str = ""
 
 # Main interpreter function:
 def execute(brainFuck: str):
@@ -70,13 +73,93 @@ def execute(brainFuck: str):
                 else:
                     i += 1
 
+def parse(cortex: list[list]):
+    """
+    Parse the given code in cortex and convert it into BrainFuck code.
+    The returned code is a list (lines of code) of lists (i0: instruction, i1+: args)
+    """
+
+    global rawCortex
+    global programCortex
+
+    splitLines = rawCortex.splitlines()
+    for line in splitLines:
+        if line.strip() == "" or line.strip().startswith("@"): # Empty line or comment
+            continue
+        else:
+            programCortex.append(line.split())
+
 def compile():
     """
     Compiles the program list into a single string of BrainFuck code.
     """
-    global program
+    global programBf
+    global programCortex
 
-    return "".join(program)
+    for line in programCortex:
+        instruction = line[0]
+        args = line[1:]
+
+        match instruction:
+            case "lft":
+                programBf.append(lft(int(args[0])))
+                # E.G.
+                # lft 3 == <<<
+            
+            case "rgt":
+                programBf.append(rgt(int(args[0])))
+                # E.G.
+                # rgt 3 == >>>
+            
+            case "inc":
+                programBf.append(inc(int(args[0])))
+                # E.G.
+                # inc 3 == +++
+
+            case "dec":
+                programBf.append(dec(int(args[0])))
+                # E.G.
+                # dec 3 == ---
+            
+            case "fly":
+                programBf.append(fly(args[0]))
+                # E.G.
+                # fly 3 (pointer at 5) == <<
+            
+            case "prt":
+                programBf.append(".")
+                # E.G.
+                # prt == .
+
+            case "prn":
+                programBf.append(("PRN", None))
+                # Exception: prn is easier done outside of BrainFuck.
+
+            case "dmp":
+                programBf.append(("DMP", None))
+                # Exception: dmp is easier done outside of BrainFuck.
+
+            case "clr":
+                programBf.append("[-]")
+                # E.G.
+                # clr == [-]
+            
+            case "inp":
+                programBf.append(",")
+                # E.G.
+                # inp == ,
+            
+            case "let":
+                tapeNames[int(args[1])] = args[0]
+
+            case "set":
+                programBf.append("[-]" + inc(int(args[0])))
+                # E.G.
+                # set 5 == [-]+++++
+            
+            case _:
+                raise ValueError(f"Unknown instruction: {instruction} at line: {line}")
+
         
 # -------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -112,7 +195,7 @@ def fly(cell: int | str):
     Specified cell can be <int> or <str>, if <str> is used, it must be in tapeNames and the index of the name in tapeNames will be used as the cell number.
     """
 
-    global p
+    global cp
 
     if isinstance(cell, str):
         if cell in tapeNames:
@@ -121,11 +204,14 @@ def fly(cell: int | str):
             raise ValueError(f"Unknown tape name: {cell}")
 
     if cell > p:
-        command = rgt(cell - p)
+        command = rgt(cell - cp)
     else:
-        command = lft(p - cell)
+        command = lft(cp - cell)
+    
+    cp = cell
 
     return command
+
 
 # Instructions reference sheet:
 # lft - move pointer left by (arg1: int) cells
