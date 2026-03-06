@@ -1,3 +1,5 @@
+import sys
+
 p: int = 0
 cp: int = 0
 
@@ -234,7 +236,6 @@ def fly(cell: int | str):
     
     return command
 
-
 # Instructions reference sheet:
 # lft - move pointer left by (arg1: int) cells
 # rgt - move pointer right by (arg1: int) cells
@@ -248,3 +249,22 @@ def fly(cell: int | str):
 # inp - input a character and store its ASCII value in the current cell
 # let - assign a name (arg1: str) to the cell (arg2: int) and store the name in tapeNames
 # set - set current cell to the value (arg1: int)
+
+if __name__ == "__main__":
+    if len(sys.argv) < 2:
+        print("Usage: python main.py <filename>")
+        sys.exit(1)
+
+    filename = sys.argv[1]
+
+    with open(filename, "r") as f:
+        rawCortex = f.read()
+
+    runner()
+
+    bfFileName = filename.replace(".cortex", ".bf")
+
+    with open(bfFileName, "w") as f:
+        for cmd in programBf:
+            if not isinstance(cmd, tuple):
+                f.write(str(cmd) + "\n")
