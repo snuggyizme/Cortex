@@ -171,7 +171,11 @@ def compile():
                 # inp == ,
             
             case "let":
+                if len(args) != 2:
+                    raise ValueError(f"let requires 2 arguments, got {len(args)} at line: {line}")
                 tapeNames[args[0]] = int(args[1])
+                # E.G.
+                # Exception: let is easier done outside of BrainFuck.
 
             case "set":
                 programBf.append("[-]" + inc(int(args[0])))
@@ -180,6 +184,7 @@ def compile():
             
             case _:
                 raise ValueError(f"Unknown instruction: {instruction} at line: {line}")
+            
 
         
 # -------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -249,6 +254,8 @@ def fly(cell: int | str):
 # inp - input a character and store its ASCII value in the current cell
 # let - assign a name (arg1: str) to the cell (arg2: int) and store the name in tapeNames
 # set - set current cell to the value (arg1: int)
+# lop - start a loop (while current cell != 0)
+# end - end a loop
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:
