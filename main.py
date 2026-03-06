@@ -3,7 +3,7 @@ cp: int = 0
 
 tape: list[int] = [0] * 256
 
-tapeNames: dict[str, int] = {} # Integers at first, but replaced with names by let.
+tapeNames: dict[str, int] = {}
 
 programBf: list[str | tuple] = []
 programCortex: list[list] = []
