@@ -12,7 +12,6 @@ def execute(brainFuck: str):
     """
     Executes the given BrainFuck code and prints any output produced by the code.
     """
-
     global p
 
     tape: list[int] = [0] * 30000
@@ -78,7 +77,6 @@ def parse(cortex: list[list]):
     Parse the given code in cortex and convert it into BrainFuck code.
     The returned code is a list (lines of code) of lists (i0: instruction, i1+: args)
     """
-
     global rawCortex
     global programCortex
 
@@ -169,12 +167,18 @@ def lft(count: int):
     """
     Returns a command to move the tape pointer to the left by the specified count.
     """
+    global cp
+
+    cp -= count
     return "<" * count
 
 def rgt(count: int):
     """
     Returns a command to move the tape pointer to the right by the specified count.
     """
+    global cp
+
+    cp += count
     return ">" * count
 
 def inc(count: int):
@@ -194,7 +198,6 @@ def fly(cell: int | str):
     Returns a command to move the tape pointer to the specified cell.
     Specified cell can be <int> or <str>, if <str> is used, it must be in tapeNames and the index of the name in tapeNames will be used as the cell number.
     """
-
     global cp
 
     if isinstance(cell, str):
@@ -203,7 +206,7 @@ def fly(cell: int | str):
         else:
             raise ValueError(f"Unknown tape name: {cell}")
 
-    if cell > p:
+    if cell > cp:
         command = rgt(cell - cp)
     else:
         command = lft(cp - cell)
