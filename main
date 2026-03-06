@@ -1,0 +1,139 @@
+p: int = 0
+
+tapeNames: list[str] = []
+
+program: list[str] = []
+
+# Main interpreter function:
+def execute(brainFuck: str):
+    """
+    Executes the given BrainFuck code and prints any output produced by the code.
+    """
+
+    global p
+
+    tape: list[int] = [0] * 30000
+
+    i: int = 0
+
+    while i < len(brainFuck):
+        command = brainFuck[i]
+        match command:
+            # Movement
+            case ">":
+                p += 1
+                i += 1
+            case "<":
+                p -= 1
+                i += 1
+            
+            # Operations
+            case "+":
+                tape[p] = (tape[p] + 1) % 256
+                i += 1
+            case "-":
+                tape[p] = (tape[p] - 1) % 256
+                i += 1
+            
+            # I/O
+            case ".":
+                print(chr(tape[p]), end="")
+                i += 1
+            case ",":
+                tape[p] = ord(input())
+                i += 1
+            
+            # Looping
+            case "[":
+                if tape[p] == 0:
+                    loopDepth = 1
+                    i += 1
+                    while i < len(brainFuck) and loopDepth > 0:
+                        if brainFuck[i] == "[":
+                            loopDepth += 1
+                        elif brainFuck[i] == "]":
+                            loopDepth -= 1
+                        i += 1
+                else:
+                    i += 1
+            case "]":
+                if tape[p] != 0:
+                    loopDepth = 1
+                    i -= 1
+                    while i >= 0 and loopDepth > 0:
+                        if brainFuck[i] == "]":
+                            loopDepth += 1
+                        elif brainFuck[i] == "[":
+                            loopDepth -= 1
+                        i -= 1
+                    i += 1
+                else:
+                    i += 1
+
+def compile():
+    global program
+
+    bfCompiled = ""
+
+    for instruction in program:
+        
+
+# Helper functions:
+def lft(count: int):
+    """
+    Returns a command to move the tape pointer to the left by the specified count.
+    """
+    return "<" * count
+
+def rgt(count: int):
+    """
+    Returns a command to move the tape pointer to the right by the specified count.
+    """
+    return ">" * count
+
+def inc(count: int):
+    """
+    Returns a command to add the specified count to the current cell.
+    """
+    return "+" * count
+
+def dec(count: int):
+    """
+    Returns a command to subtract the specified count from the current cell.
+    """
+    return "-" * count
+
+def fly(cell: int | str):
+    """
+    Returns a command to move the tape pointer to the specified cell.
+    Specified cell can be <int> or <str>, if <str> is used, it must be in tapeNames and the index of the name in tapeNames will be used as the cell number.
+    """
+
+    global p
+
+    if isinstance(cell, str):
+        if cell in tapeNames:
+            cell = tapeNames.index(cell)
+        else:
+            raise ValueError(f"Unknown tape name: {cell}")
+
+    if cell > p:
+        command = rgt(cell - p)
+    else:
+        command = lft(p - cell)
+
+    return command
+
+# Instructions reference sheet:
+# lft - move pointer left by (arg1: int) cells
+# rgt - move pointer right by (arg1: int) cells
+# inc - increment current cell by (arg1: int)
+# dec - decrement current cell by (arg1: int)
+# fly - move pointer to cell (arg1: int | str)
+# prt - output the character represented by the current cell
+# prn - output the integer value of the current cell
+# dmp - dump tape
+# clr - clear current cell
+# inp - input a character and store its ASCII value in the current cell
+# let - assign a name (arg1: str) to the cell (arg2: int) and store the name in tapeNames
+# set - set current cell to the value (arg1: int)
