@@ -1,7 +1,7 @@
 p: int = 0
 cp: int = 0
 
-tapeNames: list = [0] * 30000 # Integers at first, but replaced with names by let.
+tapeNames: dict[str, int] = {} # Integers at first, but replaced with names by let.
 
 programBf: list[str | tuple] = []
 programCortex: list[list] = []
@@ -148,7 +148,7 @@ def compile():
                 # inp == ,
             
             case "let":
-                tapeNames[int(args[1])] = args[0]
+                tapeNames[args[0]] = int(args[1])
 
             case "set":
                 programBf.append("[-]" + inc(int(args[0])))
@@ -202,7 +202,7 @@ def fly(cell: int | str):
 
     if isinstance(cell, str):
         if cell in tapeNames:
-            cell = tapeNames.index(cell)
+            cell = int(tapeNames[cell])
         else:
             raise ValueError(f"Unknown tape name: {cell}")
 
@@ -211,8 +211,6 @@ def fly(cell: int | str):
     else:
         command = lft(cp - cell)
     
-    cp = cell
-
     return command
 
 
