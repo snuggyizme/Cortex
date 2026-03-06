@@ -97,23 +97,8 @@ def runner():
     parse()
     compile()
 
-    buffer = ""
-    for entry in programBf:
-        if isinstance(entry, tuple):
-            # Flush any accumulated bf commands before handling tuple
-            if buffer:
-                execute(buffer)
-                buffer = ""
-            if entry[0] == "PRN":
-                print(tape[cp])
-            elif entry[0] == "DMP":
-                print(tape)
-        else:
-            buffer += str(entry)
-
-    # Execute any remaining BrainFuck commands in the buffer
-    if buffer:
-        execute(buffer)
+    bf_program = "".join(str(cmd) for cmd in programBf)
+    execute(bf_program)
 
 def parse():
     """
@@ -173,12 +158,10 @@ def compile():
                 # prt == .
 
             case "prn":
-                programBf.append(("PRN", None))
-                # Exception: prn is easier done outside of BrainFuck.
+                programBf.append("P")
 
             case "dmp":
-                programBf.append(("DMP", None))
-                # Exception: dmp is easier done outside of BrainFuck.
+                programBf.append("D")
 
             case "clr":
                 programBf.append("[-]")
@@ -194,7 +177,6 @@ def compile():
                 if len(args) != 2:
                     raise ValueError(f"let requires 2 arguments, got {len(args)} at line: {line}")
                 tapeNames[args[0]] = int(args[1])
-                # E.G.
                 # Exception: let is easier done outside of BrainFuck.
 
             case "set":
