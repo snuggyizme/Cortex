@@ -31,7 +31,7 @@ def execute(brainFuck: str):
             case "<":
                 p -= 1
                 i += 1
-            
+
             # Operations
             case "+":
                 tape[p] = (tape[p] + 1) % 256
@@ -39,7 +39,7 @@ def execute(brainFuck: str):
             case "-":
                 tape[p] = (tape[p] - 1) % 256
                 i += 1
-            
+
             # I/O
             case ".":
                 print(chr(tape[p]), end="")
@@ -47,7 +47,13 @@ def execute(brainFuck: str):
             case ",":
                 tape[p] = ord(input())
                 i += 1
-            
+            case "P":                      # print integer
+                print(tape[p])
+                i += 1
+            case "D":                      # dump tape
+                print(tape)
+                i += 1
+
             # Looping
             case "[":
                 if tape[p] == 0:
@@ -83,17 +89,31 @@ def runner():
     global programCortex
     global rawCortex
     global tape
+    global cp
+
+    programBf.clear()
+    programCortex.clear()
 
     parse()
     compile()
 
-    for i in programBf:
-        if isinstance(i, tuple) and i[0] == "PRN":
-            print(tape[cp])
-        elif isinstance(i, tuple) and i[0] == "DMP":
-            print(tape)
+    buffer = ""
+    for entry in programBf:
+        if isinstance(entry, tuple):
+            # Flush any accumulated bf commands before handling tuple
+            if buffer:
+                execute(buffer)
+                buffer = ""
+            if entry[0] == "PRN":
+                print(tape[cp])
+            elif entry[0] == "DMP":
+                print(tape)
         else:
-            execute(str(i))
+            buffer += str(entry)
+
+    # Execute any remaining BrainFuck commands in the buffer
+    if buffer:
+        execute(buffer)
 
 def parse():
     """
@@ -181,6 +201,16 @@ def compile():
                 programBf.append("[-]" + inc(int(args[0])))
                 # E.G.
                 # set 5 == [-]+++++
+            
+            case "lop":
+                programBf.append("[")
+                # E.G.
+                # lop == [
+            
+            case "end":
+                programBf.append("]")
+                # E.G.
+                # end == ]
             
             case _:
                 raise ValueError(f"Unknown instruction: {instruction} at line: {line}")

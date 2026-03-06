@@ -1,0 +1,12 @@
+let x 0
+let y 1
+set 5
+lop
+    prt
+    dec 1
+    fly y
+    prt
+    inc 1
+    fly x
+    dmp
+end
