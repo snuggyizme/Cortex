@@ -1,5 +1,6 @@
 import sys
 from collections import defaultdict
+import re
 
 p: int = 0
 cp: int = 0
@@ -124,94 +125,152 @@ def compile():
     global programBf
     global programCortex
 
-    for line in programCortex:
-        instruction = line[0]
-        args = line[1:]
+    i = 0
 
-        match instruction:
-            case "lft":
-                programBf.append(lft(int(args[0])))
-                # E.G.
-                # lft 3 == <<<
+    while i < len(programCortex):
+        line = programCortex[i]
+        if line[0] == "def":
+            if len(line) != 3:
+                raise ValueError(f"def requires 2 arguments, got {len(line)-1} at line {i+1}")
             
-            case "rgt":
-                programBf.append(rgt(int(args[0])))
-                # E.G.
-                # rgt 3 == >>>
-            
-            case "inc":
-                programBf.append(inc(int(args[0])))
-                # E.G.
-                # inc 3 == +++
+            name = line[1]
+            rawArgs = line[2]
 
-            case "dec":
-                programBf.append(dec(int(args[0])))
-                # E.G.
-                # dec 3 == ---
-            
-            case "fly":
-                programBf.append(fly(args[0]))
-                # E.G.
-                # fly 3 (pointer at 5) == <<
-            
-            case "prt":
-                programBf.append(".")
-                # E.G.
-                # prt == .
+            bodyLines = []
 
-            case "prn":
-                programBf.append("P")
+            depth = 1
+            i += 1
 
-            case "dmp":
-                programBf.append("D")
+            while i < len(programCortex) and depth > 0:
+                currentLine = programCortex[i]
+                currentInst = currentLine[0]
 
-            case "clr":
-                programBf.append("[-]")
-                # E.G.
-                # clr == [-]
-            
-            case "inp":
-                programBf.append(",")
-                # E.G.
-                # inp == ,
-            
-            case "let":
-                if len(args) != 2:
-                    raise ValueError(f"let requires 2 arguments, got {len(args)} at line: {line}")
-                tapeNames[args[0]] = int(args[1])
-                # Exception: let is easier done outside of BrainFuck.
+                if currentInst in ["def", "lop"]:
+                    depth += 1
+                
+                elif currentInst == "end":
+                    depth -= 1
+                    if depth == 0:
+                        i += 1
+                        break
+                
+                if depth > 0:
+                    bodyLines.append(" ".join(currentLine) + "\n")
+                
+                i += 1
 
-            case "set":
-                programBf.append("[-]" + inc(int(args[0])))
-                # E.G.
-                # set 5 == [-]+++++
+            if depth != 0:
+                raise ValueError(f"Unclosed def '{name}' starting at line {i+1}")
             
-            case "lop":
-                programBf.append("[")
-                # E.G.
-                # lop == [
-            
-            case "end":
-                programBf.append("]")
-                # E.G.
-                # end == ]
-            
-            case "cpy":
-                if len(args) != 2:
-                    raise ValueError(f"cpy requires 2 arguments, got {len(args)} at line: {line}")
-                programBf.append(cpy(args[0], args[1]))
-                # E.G.
-                # no example fuck you its 3:27
-            
-            case "add":
-                if len(args) != 2:
-                    raise ValueError(f"add requires 2 arguments, got {len(args)} at line: {line}")
-                programBf.append(add(args[0], args[1]))                
-                # E.G.
-                # add 3 4 (starting at 3) == [+>-<]
+            body = "".join(bodyLines)
+            DEF(name, rawArgs, body)
+        else:
+            processLine(line)
+            i += 1
+                
+def processLine(line):
+    """
+    Compiles a single line
+    """
+    global programBf
 
-            case _:
-                raise ValueError(f"Unknown instruction: {instruction} at line: {line}")
+    instruction = line[0]
+    args = line[1:]
+
+    match instruction:
+        case "lft":
+            programBf.append(lft(int(args[0])))
+            # E.G.
+            # lft 3 == <<<
+        
+        case "rgt":
+            programBf.append(rgt(int(args[0])))
+            # E.G.
+            # rgt 3 == >>>
+        
+        case "inc":
+            programBf.append(inc(int(args[0])))
+            # E.G.
+            # inc 3 == +++
+
+        case "dec":
+            programBf.append(dec(int(args[0])))
+            # E.G.
+            # dec 3 == ---
+        
+        case "fly":
+            programBf.append(fly(args[0]))
+            # E.G.
+            # fly 3 (pointer at 5) == <<
+        
+        case "prt":
+            programBf.append(".")
+            # E.G.
+            # prt == .
+
+        case "prn":
+            programBf.append("P")
+
+        case "dmp":
+            programBf.append("D")
+
+        case "clr":
+            programBf.append("[-]")
+            # E.G.
+            # clr == [-]
+        
+        case "inp":
+            programBf.append(",")
+            # E.G.
+            # inp == ,
+        
+        case "let":
+            if len(args) != 2:
+                raise ValueError(f"let requires 2 arguments, got {len(args)} at line: {line}")
+            tapeNames[args[0]] = int(args[1])
+            # Exception: let is easier done outside of BrainFuck.
+
+        case "set":
+            programBf.append("[-]" + inc(int(args[0])))
+            # E.G.
+            # set 5 == [-]+++++
+        
+        case "lop":
+            programBf.append("[")
+            # E.G.
+            # lop == [
+            
+        case "end":
+            programBf.append("]")
+            # E.G.
+            # end == ]
+        
+        case "cpy":
+            if len(args) != 2:
+                raise ValueError(f"cpy requires 2 arguments, got {len(args)} at line: {line}")
+            programBf.append(cpy(args[0], args[1]))
+            # E.G.
+            # no example fuck you its 3:27
+        
+        case "add":
+            if len(args) != 2:
+                raise ValueError(f"add requires 2 arguments, got {len(args)} at line: {line}")
+            programBf.append(add(args[0], args[1]))                
+            # E.G.
+            # add 3 4 (starting at 3) == [+>-<]
+        
+        case "exe":
+            if len(args) != 2:
+                raise ValueError(f"exe requires 2 arguments, got {len(args)} at line: {line}")
+            name = args[0]
+            rawArgs = args[1]
+            cortexBody = exe(name, rawArgs)
+            tempLines = [l.split() for l in cortexBody.splitlines() if l.strip() and not l.startswith("@")]
+            for tempLine in tempLines:
+                processLine(tempLine)
+
+        case _:
+            raise ValueError(f"Unknown instruction: {instruction} at line: {line}")
             
 def _resolve(cell: int | str):
     """
@@ -237,8 +296,8 @@ def _get_args(raw):
 
     arguments: list = tempArgs.split()
 
-    for x in arguments:
-        arguments[x] = _resolve(x)
+    for i, x in enumerate(arguments):
+        arguments[i] = _resolve(x)
     
     return arguments
         
@@ -355,39 +414,38 @@ def cpy(dst: int | str, src: int | str):
 
 def DEF(name: str, rawArgs: str, body: str):
     """
-    Creates a function with a name, arguements and code body.
-    The arguements are arranged in square brackets and seperated by spaces (e.g. "[x y z]")
+    Creates a function with a name, arguments and code body.
+    The arguments are arranged in square brackets and seperated by spaces (e.g. "[x y z]")
     Although this function is named in capitals, the instruction in Cortex is still lowercase.
     """
     global functions
     
-    arguments = _get_args(rawArgs)
-
-    for a in arguments:
-        body = body.replace(" " + a + " ")
-    
+    arguments = [arg.strip() for arg in rawArgs.strip("[]").split()]
     functions[name] = {
-        "arguements": arguments,
-        "body": body,    
+        "arguments": arguments,
+        "body": body
     }
 
 def exe(name, rawArgs):
     """
-    Runs the function given by name, with arguements
+    Runs the function given by name, with arguments
     """
     global functions
 
     func = functions[name]
-    
     command = func["body"]
+    argNames = func["arguments"]
 
-    inputs = _get_args(rawArgs)
+    tempArgs = rawArgs.strip("[]")
+    inputs = tempArgs.split()
 
-    for i in range(inputs):
-        command = command.replace()
+    if len(inputs) != len(argNames):
+        raise ValueError(f"Function {name} expects {len(argNames)} arguments, got {len(inputs)}")
 
+    for a, v in zip(argNames, inputs):
+        command = re.sub(r'\b' + re.escape(a) + r'\b', v, command)
 
-    return 
+    return command
 
 # ((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((()))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))
 # INFORMATION:

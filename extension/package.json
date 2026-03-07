@@ -16,7 +16,7 @@
         "id": "cortex",
         "aliases": ["Cortex", "cortex"],
         "extensions": [".cortex"],
-        "configuration": "./language-configuration.json"
+        "configuration": "language-configuration.json"
       }
     ],
     "grammars": [

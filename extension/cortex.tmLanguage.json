@@ -1,9 +1,10 @@
 {
   "scopeName": "source.cortex",
+  "fileTypes": ["cortex"],
   "patterns": [
     {
       "name": "keyword.control.cortex",
-      "match": "\\b(lft|rgt|inc|dec|fly|prt|prn|dmp|clr|inp|let|set|lop|end|cpy|add|cmp|ieq|igt|ilt)\\b"
+      "match": "^\\s*(\\w+)"
     },
     {
       "name": "comment.line.at.cortex",
@@ -13,7 +14,10 @@
       "name": "string.quoted.double.cortex",
       "begin": "\"",
       "end": "\""
+    },
+    {
+      "name": "constant.numeric.cortex",
+      "match": "\\b\\d+(\\.\\d+)?\\b"
     }
-  ],
-  "repository": {}
+  ]
 }
