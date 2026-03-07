@@ -1,0 +1,30 @@
+{
+  "name": "cortex-language",
+  "displayName": "Cortex - Syntax Highlighting",
+  "description": "",
+  "version": "0.0.1",
+  "publisher": "snuggyizme",
+  "engines": {
+    "vscode": "^1.80.0"
+  },
+  "categories": [
+    "Programming Languages"
+  ],
+  "contributes": {
+    "languages": [
+      {
+        "id": "cortex",
+        "aliases": ["Cortex", "cortex"],
+        "extensions": [".cortex"],
+        "configuration": "./language-configuration.json"
+      }
+    ],
+    "grammars": [
+      {
+        "language": "cortex",
+        "scopeName": "source.cortex",
+        "path": "cortex.tmLanguage.json"
+      }
+    ]
+  }
+}

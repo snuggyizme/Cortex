@@ -18,5 +18,6 @@ An assembly-ish wrapper for BrainFuck
 | set | Sets the value of the current cell to <arg1: int> |
 | lop | Starts a loop that lasts until the current cell is zero |
 | end | End constraint of a loop |
-| cpy | Copy value to destination cell <arg1: cell> from source cell <arg2: cell>
-| add | Combine the values of <arg1: cell> and <arg2: cell> into <arg1: cell>
+| cpy | Copy value to destination cell <arg1: cell> from source cell <arg2: cell> |
+| add | Combine the values of <arg1: cell> and <arg2: cell> into <arg1: cell> |
+| cmp | Compare the values of <arg1: cell> and <arg2: cell>. See *CMP Reference* for more. |
