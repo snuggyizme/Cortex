@@ -1,10 +1,15 @@
 @ CORTEX @@@@@@@@@@@@@@@@@
 @ EXAMPLE A: Hello world @
 
+@ Defining the letter 'h':
+@ Set a tape name:
 let h 0
+@ Set the value to the ASCII code for 'h':
 set 104
+@ Move the pointer to the next cell for the next letter
 rgt 1
 
+@ The same for the rest of the letters:
 let e 1
 set 101
 rgt 1
@@ -32,13 +37,13 @@ rgt 1
 let d 7
 set 100
 
+@ Now we fly between the letters to print them out in the right order:
 fly h
 prt
 fly e
 prt
 fly l
 prt 
-fly l
 prt
 fly o
 prt

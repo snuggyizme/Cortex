@@ -1,0 +1,15 @@
+@ CORTEX @@@@@@@@@@@@@@
+@ EXAMPLE D: Addition @
+
+let x 0
+set 18
+
+let y 1
+rgt 1
+set 12
+
+let sum 2
+add sum x
+add sum y
+fly sum
+prn

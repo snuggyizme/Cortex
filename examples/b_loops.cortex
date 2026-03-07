@@ -1,15 +1,21 @@
 @ CORTEX @@@@@@@@@@@
 @ EXAMPLE B: Loops @
 
+@ Our two variables:
 let x 0
 let y 1
+
+@ Set x to 5: this is our loop counter:
 set 5
+
+@ Loop over x (equivalent to "while x > 0" and "if x != 0"):
 lop
+    @ Print the current value of x:
     prn
+    @ Decrease x and increase y:
     dec 1
     fly y
     inc 1
+    @ Go back to x so we can loop:
     fly x
 end
-fly y
-prn
