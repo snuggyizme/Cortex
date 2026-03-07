@@ -1,6 +1,7 @@
 import sys
 from collections import defaultdict
 import re
+from pathlib import Path
 
 p: int = 0
 cp: int = 0
@@ -84,6 +85,20 @@ def execute(brainFuck: str):
                 else:
                     i += 1
 
+def _import_builtins():
+    """
+    Takes all the builtin files and adds them to the list of program actions.
+    """
+    global rawCortex
+
+    folder = Path("builtins")
+    files = ""
+
+    for file in folder.glob("*.cortex"):
+        files += file.read_text()
+    
+    rawCortex = files + rawCortex
+
 def runner():
     """
     Runs the entire process of parsing, compiling, and executing the code.
@@ -96,6 +111,8 @@ def runner():
 
     programBf.clear()
     programCortex.clear()
+
+    _import_builtins()
 
     parse()
     compile()
@@ -366,11 +383,11 @@ def add(dst: int | str, src: int | str):
 
     command = ""
 
-    command += cpy(705, src)
-    command += fly(705)
+    command += cpy(-1, src)
+    command += fly(-1)
     command += "[-"
     command += fly(dst) + "+"
-    command += fly(705)
+    command += fly(-1)
     command += "]"
 
     command += fly(start)
@@ -393,19 +410,19 @@ def cpy(dst: int | str, src: int | str):
     command = ""
 
     command += _clear(dst)             # Clear destination
-    command += _clear(705)             # Clear temp
+    command += _clear(-2)              # Clear temp
 
     command += fly(src)                # Go to source, it is our loop counter
     command += "[-"                    # Loop and start to clear source
     command += fly(dst) + "+"          # Transferring source to destination
-    command += fly(704) + "+"          # & temp
+    command += fly(-2) + "+"           # & temp
     command += fly(src)                # Go back to source to check if we are done with the loop
     command += "]"                     # The done with the loop in question
 
-    command += fly(704)                # Go to temp, it is our loop counter
+    command += fly(-2)                 # Go to temp, it is our loop counter
     command += "[-"                    # Loop and start to clear temp
     command += fly(src) + "+"          # Transferring temp back to source
-    command += fly(704)                # Go back to temp to check if we are done with the loop
+    command += fly(-2)                 # Go back to temp to check if we are done with the loop
     command += "]"                     # The done with the loop in question
     
     command += fly(start)              # RAAAAAGGHHHHHHH
@@ -479,12 +496,8 @@ def exe(name, rawArgs):
 # if arg1 < arg2: 2
 
 # temps taken:
-# 700: free
-# 701: free
-# 702: cmp (func)
-# 703: cmp (func)
-# 704: cpy (inst)
-# 705: add (inst)
+# -2: cpy (inst)
+# -1: add (inst)
 
 # ((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((()))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))
 
