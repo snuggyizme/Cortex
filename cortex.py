@@ -7,6 +7,7 @@ cp: int = 0
 tape: defaultdict[int, int] = defaultdict(int)
 
 tapeNames: dict[str, int] = {}
+functions: dict[str, str] = {}
 
 programBf: list[str | tuple] = []
 programCortex: list[list] = []
@@ -222,6 +223,11 @@ def _resolve(cell: int | str):
             return int(tapeNames[cell])
         raise ValueError(f"Unknown tape name: {cell}")
     return int(cell)
+
+def _clear(cell: int | str):
+    cell = _resolve(cell)
+
+    return f"{fly(cell)}[-]"
         
 # -------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -264,11 +270,7 @@ def fly(cell: int | str):
     """
     global cp
 
-    if isinstance(cell, str):
-        if cell in tapeNames:
-            cell = int(tapeNames[cell])
-        else:
-            raise ValueError(f"Unknown tape name: {cell}")
+    cell = _resolve(cell)
 
     if cell > cp:
         command = rgt(cell - cp)
@@ -318,9 +320,8 @@ def cpy(dst: int | str, src: int | str):
 
     command = ""
 
-                                       # GET FROM SOURCE
-    command += fly(dst) + "[-]"        # Clear destination
-    command += fly(705) + "[-]"        # Clear temp
+    command += _clear(dst)             # Clear destination
+    command += _clear(705)             # Clear temp
 
     command += fly(src)                # Go to source, it is our loop counter
     command += "[-"                    # Loop and start to clear source
@@ -329,21 +330,17 @@ def cpy(dst: int | str, src: int | str):
     command += fly(src)                # Go back to source to check if we are done with the loop
     command += "]"                     # The done with the loop in question
 
-                                       # RESTORE
-
     command += fly(704)                # Go to temp, it is our loop counter
     command += "[-"                    # Loop and start to clear temp
     command += fly(src) + "+"          # Transferring temp back to source
     command += fly(704)                # Go back to temp to check if we are done with the loop
     command += "]"                     # The done with the loop in question
-
-                                       # I FEEL LIKE A TYPEWRITER
     
     command += fly(start)              # RAAAAAGGHHHHHHH
     
     return command
 
-def cmp(cell1: int | str, cell2: int | str):
+def cmp(dst: int | str, cell1: int | str, cell2: int | str):
     """"
     Returns a magic number that represents the result of comparing the values of the two specified cells.
     Both cell1 and cell2 can be <int> or <str>, if <str> is used, it must be in tapeNames and the index of the name in tapeNames will be used as the cell number.
@@ -356,18 +353,29 @@ def cmp(cell1: int | str, cell2: int | str):
     global cp
     start = cp
 
-    _resolve(cell1)
-    _resolve(cell2)
+    dst = _resolve(dst)
+    cell1 = _resolve(cell1)
+    cell2 = _resolve(cell2)
     
-    tempOne = 702
-    tempTwo = 703
+    # return with functions
 
-    command = ""
+def DEF(rawArgs: str, body: str):
+    """
+    Creates a function. Takes in arguements in square brackets (e.g. [0 3 x])
+    """
+    
+    # Resolve any cell arguements and seperate them out
+    tempArgs: str = rawArgs.strip("[]")
 
-    command += cpy(tempOne, cell1)
-    command += cpy(tempTwo, cell2)
+    arguments: list = tempArgs.split()
 
-    # now i confused
+    for x in arguments:
+        arguments[x] = _resolve(x)
+    # .................................................
+
+
+
+
 
 # ((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((()))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))
 # INFORMATION:
@@ -399,10 +407,10 @@ def cmp(cell1: int | str, cell2: int | str):
 # temps taken:
 # 700: free
 # 701: free
-# 702: cmp
-# 703: cmp
-# 704: cpy
-# 705: add
+# 702: cmp (func)
+# 703: cmp (func)
+# 704: cpy (inst)
+# 705: add (inst)
 
 # ((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((()))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))
 
