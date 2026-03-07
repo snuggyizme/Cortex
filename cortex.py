@@ -415,12 +415,12 @@ def cpy(dst: int | str, src: int | str):
 def DEF(name: str, rawArgs: str, body: str):
     """
     Creates a function with a name, arguments and code body.
-    The arguments are arranged in square brackets and seperated by spaces (e.g. "[x y z]")
+    The arguments are arranged in square brackets and seperated by commas (e.g. "[x,y,z]")
     Although this function is named in capitals, the instruction in Cortex is still lowercase.
     """
     global functions
     
-    arguments = [arg.strip() for arg in rawArgs.strip("[]").split()]
+    arguments = [arg.strip() for arg in rawArgs.strip("[]").split(",")]
     functions[name] = {
         "arguments": arguments,
         "body": body
@@ -437,7 +437,7 @@ def exe(name, rawArgs):
     argNames = func["arguments"]
 
     tempArgs = rawArgs.strip("[]")
-    inputs = tempArgs.split()
+    inputs = [i.strip() for i in tempArgs.split(",")]
 
     if len(inputs) != len(argNames):
         raise ValueError(f"Function {name} expects {len(argNames)} arguments, got {len(inputs)}")

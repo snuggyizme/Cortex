@@ -1,49 +1,24 @@
 @ CORTEX @@@@@@@@@@@@@@@
 @ EXAMPLE E: Functions @
 
-@ A:
-@ 'ID'
-let id_a 0
-set 130
+let a 0
+let b 1
+let result 2
 
-@ 'Rank'
-rgt 1
-let rank_a 1
-set 9
-
-@ B:
-@ 'ID'
-let id_b 0
-set 199
-
-@ 'Rank'
-rgt 1
-let rank_b 1
-set 4
-
-@ Function to set variables to ascii characters
-def setLetter [letter ascii]
-    cpy letter ascii
+def addtwo [x,y,z]
+    fly z
+    clr
+    cpy z x
+    add z y
 end
 
-@ Function to print variables, specifically in this arrangement
+fly a
+set 32
 
-@ Letters for "ID " and "RANK "
-let letterI 2
-setLetter [letterI 73]
-let letterD 3
-setLetter [letterD 68]
-let space 4
-setLetter [space 32]
-let letterR 5
-setLetter [letterR 82]
-let letterA 6
-setLetter [letterA 65]
-let letterN 7
-setLetter [letterN 78]
-let letterK 8
-setLetter [letterK 75]
+fly b
+set 16
 
-def log [i r]
-    
-end
+exe addtwo [a,b,result]
+
+fly result
+prn
