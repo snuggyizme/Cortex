@@ -1,37 +1,33 @@
 @ CORTEX @@@@@@@@@@@@@@@
 @ EXAMPLE C: Fibonacci @
 
-@ Set tape names:
+@ Current position of the Fibonacci sequence
 let current 0
-let previous 1
-let temp 2
-let timer 3
-
-@ Start at 1
-set 1
-fly previous
 set 1
 
-@ Go to the timer cell and set it to 30 so we can stop after 30 iterations
+@ Last position of the Fibonacci sequence
+let last 1
+
+@ We want to stop after 10 iterations
+let timer 2
 fly timer
-set 30
+set 10
 
+@ Temporary variable for storing the current number while we calculate the next one
+let temp 3
+
+@ Main loop
 lop
-    @ Print current value
+    @ Print the current Fibonacci number:
     fly current
     prn
 
-    @ Make a temporary copy of current number so we can remember the last number next time
+    @ Calculate next number:
     cpy temp current
+    add current last
+    cpy last temp
 
-    @ Calculate next Fibonacci number
-    add current previous
-
-    @ Finish what happened on line 22-24
-    cpy previous temp
-
-    @ Decrement timer and loop
+    @ Loop:
     fly timer
     dec 1
 end
-
