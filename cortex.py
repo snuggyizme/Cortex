@@ -362,6 +362,13 @@ def cmp(cell1: int | str, cell2: int | str):
     tempOne = 702
     tempTwo = 703
 
+    command = ""
+
+    command += cpy(tempOne, cell1)
+    command += cpy(tempTwo, cell2)
+
+    # now i confused
+
 # ((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((()))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))
 # INFORMATION:
 
