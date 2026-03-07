@@ -225,9 +225,22 @@ def _resolve(cell: int | str):
     return int(cell)
 
 def _clear(cell: int | str):
+    """
+    Go to and clear a cell. DOES NOT RETURN THE POINTER.
+    """
     cell = _resolve(cell)
 
     return f"{fly(cell)}[-]"
+
+def _get_args(raw):
+    tempArgs: str = raw.strip("[]")
+
+    arguments: list = tempArgs.split()
+
+    for x in arguments:
+        arguments[x] = _resolve(x)
+    
+    return arguments
         
 # -------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -340,42 +353,41 @@ def cpy(dst: int | str, src: int | str):
     
     return command
 
-def cmp(dst: int | str, cell1: int | str, cell2: int | str):
-    """"
-    Returns a magic number that represents the result of comparing the values of the two specified cells.
-    Both cell1 and cell2 can be <int> or <str>, if <str> is used, it must be in tapeNames and the index of the name in tapeNames will be used as the cell number.
-
-    Copy of CMP REFERENCE SHEET:
-    if cell1 = cell2: return 0
-    if cell1 > cell2: return 1
-    if cell1 < cell2: return 2
+def DEF(name: str, rawArgs: str, body: str):
     """
-    global cp
-    start = cp
-
-    dst = _resolve(dst)
-    cell1 = _resolve(cell1)
-    cell2 = _resolve(cell2)
+    Creates a function with a name, arguements and code body.
+    The arguements are arranged in square brackets and seperated by spaces (e.g. "[x y z]")
+    Although this function is named in capitals, the instruction in Cortex is still lowercase.
+    """
+    global functions
     
-    # return with functions
+    arguments = _get_args(rawArgs)
 
-def DEF(rawArgs: str, body: str):
-    """
-    Creates a function. Takes in arguements in square brackets (e.g. [0 3 x])
-    """
+    for a in arguments:
+        body = body.replace(" " + a + " ")
     
-    # Resolve any cell arguements and seperate them out
-    tempArgs: str = rawArgs.strip("[]")
+    functions[name] = {
+        "arguements": arguments,
+        "body": body,    
+    }
 
-    arguments: list = tempArgs.split()
+def exe(name, rawArgs):
+    """
+    Runs the function given by name, with arguements
+    """
+    global functions
 
-    for x in arguments:
-        arguments[x] = _resolve(x)
-    # .................................................
+    func = functions[name]
+    
+    command = func["body"]
+
+    inputs = _get_args(rawArgs)
+
+    for i in range(inputs):
+        command = command.replace()
 
 
-
-
+    return 
 
 # ((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((()))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))
 # INFORMATION:
@@ -397,6 +409,10 @@ def DEF(rawArgs: str, body: str):
 # end - end a loop
 # cpy - copy value to destination cell (arg2: int | str) from source cell (arg1: int | str)
 # add - combine (arg1: int | str) and (arg2: int | str) into (arg1: int | str)
+# def - define a function of name (arg1: str) with args (arg2) in square brackets and seperated by spaces (e.g. "def myFunction [x, y, z]"")
+# exe - run the function of name (arg1: str) with args (arg2) in square brackets and seperated by spaces (e.g. "exe myFunction [0, 3, name]")
+
+# Built-in functions reference sheet:
 # cmp - compare (arg1: int | str) and (arg2: int | str) and store the result (see "cmp reference sheet") in the current cell
 
 # cmp reference sheet:
