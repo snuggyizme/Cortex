@@ -205,7 +205,7 @@ def compile():
             case "add":
                 if len(args) != 2:
                     raise ValueError(f"add requires 2 arguments, got {len(args)} at line: {line}")
-                programBf.append(add(args[0], args[1]))
+                programBf.append(add(args[0], args[1]))                
                 # E.G.
                 # add 3 4 (starting at 3) == [+>-<]
 
@@ -283,6 +283,7 @@ def add(dst: int | str, src: int | str):
     Both dst and src can be <int> or <str>, if <str> is used, it must be in tapeNames and the index of the name in tapeNames will be used as the cell number.
     """
     global cp
+    start = cp
 
     dst = _resolve(dst)
     src = _resolve(src)
@@ -297,7 +298,8 @@ def add(dst: int | str, src: int | str):
     command += fly(dst) + "+"
     command += fly(705)
     command += "]"
-    command += fly(cp)
+
+    command += fly(start)
 
     return command
 
@@ -307,6 +309,7 @@ def cpy(dst: int | str, src: int | str):
     Both dst and src can be <int> or <str>, if <str> is used, it must be in tapeNames and the index of the name in tapeNames will be used as the cell number.
     """
     global cp
+    start = cp
 
     dst = _resolve(dst)
     src = _resolve(src)
@@ -316,27 +319,51 @@ def cpy(dst: int | str, src: int | str):
     command = ""
 
                                        # GET FROM SOURCE
+    command += fly(dst) + "[-]"        # Clear destination
+    command += fly(705) + "[-]"        # Clear temp
 
     command += fly(src)                # Go to source, it is our loop counter
     command += "[-"                    # Loop and start to clear source
     command += fly(dst) + "+"          # Transferring source to destination
-    command += fly(704) + "+"         # & temp
+    command += fly(704) + "+"          # & temp
     command += fly(src)                # Go back to source to check if we are done with the loop
     command += "]"                     # The done with the loop in question
 
                                        # RESTORE
 
-    command += fly(704)               # Go to temp, it is our loop counter
+    command += fly(704)                # Go to temp, it is our loop counter
     command += "[-"                    # Loop and start to clear temp
     command += fly(src) + "+"          # Transferring temp back to source
-    command += fly(704)               # Go back to temp to check if we are done with the loop
+    command += fly(704)                # Go back to temp to check if we are done with the loop
     command += "]"                     # The done with the loop in question
 
                                        # I FEEL LIKE A TYPEWRITER
     
-    command += fly(cp)                 # RAAAAAGGHHHHHHH
+    command += fly(start)              # RAAAAAGGHHHHHHH
     
     return command
+
+def cmp(cell1: int | str, cell2: int | str):
+    """"
+    Returns a magic number that represents the result of comparing the values of the two specified cells.
+    Both cell1 and cell2 can be <int> or <str>, if <str> is used, it must be in tapeNames and the index of the name in tapeNames will be used as the cell number.
+
+    Copy of CMP REFERENCE SHEET:
+    if cell1 = cell2: return 0
+    if cell1 > cell2: return 1
+    if cell1 < cell2: return 2
+    """
+    global cp
+    start = cp
+
+    _resolve(cell1)
+    _resolve(cell2)
+    
+    tempOne = 702
+    tempTwo = 703
+
+# ((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((()))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))
+# INFORMATION:
 
 # Instructions reference sheet:
 # lft - move pointer left by (arg1: int) cells
@@ -355,6 +382,22 @@ def cpy(dst: int | str, src: int | str):
 # end - end a loop
 # cpy - copy value to destination cell (arg2: int | str) from source cell (arg1: int | str)
 # add - combine (arg1: int | str) and (arg2: int | str) into (arg1: int | str)
+# cmp - compare (arg1: int | str) and (arg2: int | str) and store the result (see "cmp reference sheet") in the current cell
+
+# cmp reference sheet:
+# if arg1 = arg2: 0
+# if arg1 > arg2: 1
+# if arg1 < arg2: 2
+
+# temps taken:
+# 700: free
+# 701: free
+# 702: cmp
+# 703: cmp
+# 704: cpy
+# 705: add
+
+# ((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((()))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:
