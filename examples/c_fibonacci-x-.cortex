@@ -1,0 +1,16 @@
+@ CORTEX @@@@@@@@@@@@@@@
+@ EXAMPLE C: Fibonacci @
+
+@ Current position of the Fibonacci sequence
+let current 0
+set 1
+
+@ Last position of the Fibonacci sequence
+let last 1
+
+@ For the second byte of information when we get large enough numbers
+let carry 2
+
+let dump 3
+
+
