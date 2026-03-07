@@ -1,0 +1,30 @@
+@ The Cortex built-in library:
+@ COMPARISON
+
+@ Temporary storage reserves: -10 to -15
+
+def compare [cell1,cell2,cellresult]
+    @ Compares cell1 and cell2.
+    @ Stores a different value in cellresult depending on the result of the comparison:
+    @ cell1 == cell2 : 0
+    @ cell1 >  cell2 : 1
+    @ cell1 <  cell2 : 2
+    @ cell1 != cell2 : 3
+
+    let temp1 -10
+    let temp2 -11
+    let greater -12
+    let lesser -13
+
+    cpy temp1 cell1
+    cpy temp2 cell2
+
+    fly temp1
+    clr
+    fly temp2
+    clr
+    fly greater
+    clr
+    fly lesser
+    clr
+end
