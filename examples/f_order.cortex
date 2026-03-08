@@ -1,6 +1,6 @@
-exe one
+exe one _
 
-def one []
+def one [_]
     set 1
     prn
 end

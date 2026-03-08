@@ -11,4 +11,53 @@ def compare [cell1,cell2,cellresult]
     @ cell1 <  cell2 : 2
     @ cell1 != cell2 : 3
 
+    let tempDiff -10
+    let tempC1 -11
+    let tempC2 -12
+
+    cpy tempC1 cell1
+    cpy tempC2 cell2
+
+    @ Subtract cell2 from cell1
+    fly tempC2
+    lop
+        fly tempC1
+        dec 1
+        fly tempC2
+        dec 1
+    end
+
+    @ Check if equal (tempC1 == 0)
+    fly tempC1
+    lop
+        @ Not equal, check if greater or less
+        fly tempC2
+        lop
+            @ tempC2 != 0, so cell1 < cell2
+            fly cellresult
+            set 2
+        end
+        fly tempC2
+        lop
+            @ tempC2 == 0, so cell1 > cell2
+            fly cellresult
+            set 1
+        end
+    end
+
+    @ If tempC1 == 0, equal
+    fly tempC1
+    lop
+        fly cellresult
+        set 0
+    end
+
+    @ Clear temps
+    clr tempC1
+    clr tempC2
+    clr tempDiff
+
+    fly cellresult
+end
+    
     
