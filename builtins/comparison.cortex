@@ -11,20 +11,4 @@ def compare [cell1,cell2,cellresult]
     @ cell1 <  cell2 : 2
     @ cell1 != cell2 : 3
 
-    let temp1 -10
-    let temp2 -11
-    let greater -12
-    let lesser -13
-
-    cpy temp1 cell1
-    cpy temp2 cell2
-
-    fly temp1
-    clr
-    fly temp2
-    clr
-    fly greater
-    clr
-    fly lesser
-    clr
-end
+    
